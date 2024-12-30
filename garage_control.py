@@ -7,7 +7,7 @@ import datetime
 from flask import Flask, request, redirect, url_for, render_template_string, session
 import requests
 
-url = "https://9905-2607-fb90-ddd9-326-00-4efd.ngrok-free.app/"
+url = "https://e988-2607-fb90-ddd9-326-00-4efd.ngrok-free.app/"
 headers = {
     "ngrok-skip-browser-warning": "anyvalue"  # or "1"
 }
