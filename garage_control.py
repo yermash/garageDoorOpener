@@ -2,35 +2,119 @@
 
 import RPi.GPIO as GPIO
 import time
-from flask import Flask, request, render_template_string
+import datetime
 
-# --- Flask app setup ---
+from flask import Flask, request, redirect, url_for, render_template_string, session
+
+# -----------------------
+# Flask app configuration
+# -----------------------
 app = Flask(__name__)
 
-# --- GPIO setup ---
+# Make sure this secret key is set to something unique and random in production!
+app.secret_key = "CHANGE_ME_TO_SOMETHING_SECURE"
+
+# Sets the Flask session to be "permanent," so it can last longer than just browser close
+app.permanent_session_lifetime = datetime.timedelta(days=365)  # 1 year
+
+# -----------------------
+# GPIO setup
+# -----------------------
 RELAY_PIN = 18  # BCM numbering
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.HIGH)  
-# Depending on relay module, "HIGH" might mean "off" and "LOW" means "on"
+GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.HIGH)
+# Note: Many relay modules are "active-low," so GPIO.LOW might trigger the relay.
+
+# -----------------------
+# Configuration
+# -----------------------
+PASSWORD = "garage123"  # CHANGE THIS!
+
+# -----------------------
+# Helper function
+# -----------------------
+def login_required(f):
+    """Decorator that checks if the user is logged in; otherwise, redirect to /login."""
+    def wrapper(*args, **kwargs):
+        if 'logged_in' not in session or not session['logged_in']:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    wrapper.__name__ = f.__name__  # Preserve function name for Flask
+    return wrapper
+
+# -----------------------
+# Routes
+# -----------------------
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Simple login form. Once the correct password is entered, store session cookie for 1 year."""
+    if request.method == 'POST':
+        entered_password = request.form.get('password', '')
+        if entered_password == PASSWORD:
+            # Mark session as permanent (lasts 1 year)
+            session.permanent = True
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            return '''
+            <html>
+              <head><title>Login</title></head>
+              <body>
+                <h1>Wrong password!</h1>
+                <p><a href="/login">Try again</a></p>
+              </body>
+            </html>
+            '''
+    # If GET, render a simple login form
+    return '''
+    <html>
+      <head><title>Garage Login</title></head>
+      <body>
+        <h1>Login to Control Garage</h1>
+        <form method="POST">
+          <p>Password: <input type="password" name="password" /></p>
+          <p><input type="submit" value="Login" /></p>
+        </form>
+      </body>
+    </html>
+    '''
+
+@app.route('/logout')
+def logout():
+    """Optional logout route to clear session early if you want."""
+    session.clear()
+    return '''
+    <html>
+      <head><title>Logged Out</title></head>
+      <body>
+        <h1>You have been logged out!</h1>
+        <p><a href="/login">Log back in</a></p>
+      </body>
+    </html>
+    '''
 
 @app.route('/')
+@login_required
 def index():
-    # Simple page with a button to toggle the garage
+    """Main page with a button to toggle the garage door."""
     return '''
     <html>
       <head><title>Garage Control</title></head>
       <body>
         <h1>Garage Door Control</h1>
         <p><a href="/toggle"><button>Open/Close Garage</button></a></p>
+        <p><a href="/logout">Logout</a></p>
       </body>
     </html>
     '''
 
-@app.route('/toggle', methods=['GET'])
+@app.route('/toggle')
+@login_required
 def toggle():
-    # Pull the relay pin low for a short time to toggle the door
+    """Toggle the relay for 1 second to trigger the garage door opener."""
     GPIO.output(RELAY_PIN, GPIO.LOW)
-    time.sleep(1)  # Adjust the time as needed
+    time.sleep(1)
     GPIO.output(RELAY_PIN, GPIO.HIGH)
     return '''
     <html>
@@ -42,10 +126,13 @@ def toggle():
     </html>
     '''
 
+# -----------------------
+# App runner
+# -----------------------
 if __name__ == '__main__':
     try:
-        # Running on port 80 requires root or running via sudo.
-        # Alternatively, choose a higher port number like 5000 or 8080.
+        # If you want to run on port 80, you may need sudo (on Linux).
+        # Alternatively, run on a higher port if you prefer not to use sudo.
         app.run(host='0.0.0.0', port=80, debug=False)
     except KeyboardInterrupt:
         GPIO.cleanup()
