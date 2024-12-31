@@ -12,11 +12,9 @@ from flask import Flask, request, redirect, url_for, session
 # -----------------------
 app = Flask(__name__)
 
-# Make sure this secret key is set to something unique and random in production!
 app.secret_key = "5DE7680659AB61B71D56FFF25B0B4AB76DA5ACA0"
 
-# Sets the Flask session to be "permanent," so it can last longer than just a browser close
-app.permanent_session_lifetime = datetime.timedelta(days=1000)  
+app.permanent_session_lifetime = datetime.timedelta(days=1500)
 
 # -----------------------
 # GPIO setup
@@ -63,7 +61,7 @@ def login():
             return '''
             <html>
               <head><title>Login</title></head>
-              <body>
+              <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; text-align: center;">
                 <h1>Wrong password!</h1>
                 <p><a href="/login">Try again</a></p>
               </body>
@@ -73,12 +71,19 @@ def login():
     return '''
     <html>
       <head><title>Garage Login</title></head>
-      <body>
-        <h1>Login to Control Garage</h1>
-        <form method="POST">
-          <p>Password: <input type="password" name="password" /></p>
-          <p><input type="submit" value="Login" /></p>
-        </form>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+          <h1 style="margin-bottom: 1rem;">Login to Control Garage</h1>
+          <form method="POST" style="text-align: center;">
+            <p style="margin-bottom: 1rem;">
+              <label for="password">Password:</label><br />
+              <input type="password" name="password" id="password" style="font-size: 1rem; padding: 0.5rem; width: 200px;" />
+            </p>
+            <p>
+              <input type="submit" value="Login" style="font-size: 1rem; padding: 0.5rem 1rem;" />
+            </p>
+          </form>
+        </div>
       </body>
     </html>
     '''
@@ -90,9 +95,11 @@ def logout():
     return '''
     <html>
       <head><title>Logged Out</title></head>
-      <body>
-        <h1>You have been logged out!</h1>
-        <p><a href="/login">Log back in</a></p>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; text-align: center;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+          <h1>You have been logged out!</h1>
+          <p><a href="/login">Log back in</a></p>
+        </div>
       </body>
     </html>
     '''
@@ -100,14 +107,31 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    """Main page with a button to toggle the garage door."""
+    """Main page with a large circular button to toggle the garage door."""
     return '''
     <html>
       <head><title>Garage Control</title></head>
-      <body>
-        <h1>Garage Door Control</h1>
-        <p><a href="/toggle"><button>Open/Close Garage</button></a></p>
-        <p><a href="/logout">Logout</a></p>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+          <h1 style="margin-bottom: 2rem;">Garage Door Control</h1>
+          <a href="/toggle" style="text-decoration: none;">
+            <button style="
+              width: 200px;
+              height: 200px;
+              border-radius: 50%;
+              background-color: #4CAF50;
+              color: white;
+              font-size: 1.2rem;
+              border: none;
+              cursor: pointer;
+            ">
+              Open/Close
+            </button>
+          </a>
+          <p style="margin-top: 2rem;">
+            <a href="/logout" style="color: #333; text-decoration: none; font-size: 1rem;">Logout</a>
+          </p>
+        </div>
       </body>
     </html>
     '''
@@ -122,9 +146,25 @@ def toggle():
     return '''
     <html>
       <head><title>Garage Toggled</title></head>
-      <body>
-        <h1>Garage Door Toggled!</h1>
-        <p><a href="/">Go back</a></p>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+          <h1>Garage Door Toggled!</h1>
+          <p style="margin-top: 2rem;">
+            <a href="/" style="text-decoration: none;">
+              <button style="
+                padding: 1rem 2rem;
+                background-color: #2196F3;
+                color: white;
+                font-size: 1.2rem;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+              ">
+                Go Back
+              </button>
+            </a>
+          </p>
+        </div>
       </body>
     </html>
     '''
