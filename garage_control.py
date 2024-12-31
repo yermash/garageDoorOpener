@@ -3,28 +3,20 @@
 import RPi.GPIO as GPIO
 import time
 import datetime
+import hashlib
 
-from flask import Flask, request, redirect, url_for, render_template_string, session
-import requests
+from flask import Flask, request, redirect, url_for, session
 
-url = "https://e988-2607-fb90-ddd9-326-00-4efd.ngrok-free.app/"
-headers = {
-    "ngrok-skip-browser-warning": "anyvalue"  # or "1"
-}
-response = requests.get(url, headers=headers)
-print(response.text)
-
-# https://9905-2607-fb90-ddd9-326-00-4efd.ngrok-free.app/
 # -----------------------
 # Flask app configuration
 # -----------------------
 app = Flask(__name__)
 
 # Make sure this secret key is set to something unique and random in production!
-app.secret_key = "CHANGE_ME_TO_SOMETHING_SECURE"
+app.secret_key = "5DE7680659AB61B71D56FFF25B0B4AB76DA5ACA0"
 
-# Sets the Flask session to be "permanent," so it can last longer than just browser close
-app.permanent_session_lifetime = datetime.timedelta(days=365)  # 1 year
+# Sets the Flask session to be "permanent," so it can last longer than just a browser close
+app.permanent_session_lifetime = datetime.timedelta(days=1000)  
 
 # -----------------------
 # GPIO setup
@@ -37,7 +29,7 @@ GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.HIGH)
 # -----------------------
 # Configuration
 # -----------------------
-PASSWORD = "garage123"  # CHANGE THIS!
+STORED_HASH = "9b06bef916015939d992c35fd9a49820a83a6e82bd738b5cb898b0f8ba7740a2"
 
 # -----------------------
 # Helper function
@@ -54,14 +46,16 @@ def login_required(f):
 # -----------------------
 # Routes
 # -----------------------
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Simple login form. Once the correct password is entered, store session cookie for 1 year."""
     if request.method == 'POST':
         entered_password = request.form.get('password', '')
-        if entered_password == PASSWORD:
-            # Mark session as permanent (lasts 1 year)
+
+        # Hash the user's input with SHA256 and compare to STORED_HASH
+        entered_hash = hashlib.sha256(entered_password.encode()).hexdigest()
+        if entered_hash == STORED_HASH:
+            # Mark session as permanent (lasts ~1 year)
             session.permanent = True
             session['logged_in'] = True
             return redirect(url_for('index'))
@@ -140,8 +134,6 @@ def toggle():
 # -----------------------
 if __name__ == '__main__':
     try:
-        # If you want to run on port 80, you may need sudo (on Linux).
-        # Alternatively, run on a higher port if you prefer not to use sudo.
         app.run(host='0.0.0.0', port=80, debug=False)
     except KeyboardInterrupt:
         GPIO.cleanup()
