@@ -5,7 +5,7 @@ import time
 
 # --- Pin Assignments ---
 # Feel free to change these if you want different pins.
-IN1_PIN = 18
+IN1_PIN = 23
 IN2_PIN = 23  # Optional second relay channel
 
 # --- GPIO Setup ---
