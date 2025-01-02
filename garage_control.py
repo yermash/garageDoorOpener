@@ -141,6 +141,7 @@ def index():
 def toggle():
     """Toggle the relay for 1 second to trigger the garage door opener."""
     GPIO.output(RELAY_PIN, GPIO.LOW)
+    print('penis')
     time.sleep(1)
     GPIO.output(RELAY_PIN, GPIO.HIGH)
     return '''
