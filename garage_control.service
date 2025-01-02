@@ -1,0 +1,12 @@
+[Unit]
+Description=Local Garage Door Startup
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/garageDoorOpener/garage_control.py
+User=pi
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
