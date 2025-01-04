@@ -12,8 +12,7 @@ from flask import Flask, request, redirect, url_for, session
 # -----------------------
 app = Flask(__name__)
 
-app.secret_key = "5DE7680659AB61B71D56FFF25B0B4AB76DA5ACA0"
-
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.permanent_session_lifetime = datetime.timedelta(days=1500)
 
 # -----------------------
@@ -27,8 +26,7 @@ GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.HIGH)
 # -----------------------
 # Configuration
 # -----------------------
-STORED_HASH = "9b06bef916015939d992c35fd9a49820a83a6e82bd738b5cb898b0f8ba7740a2"
-
+STORED_HASH = os.environ.get("GARAGE_STORED_HASH")
 # -----------------------
 # Helper function
 # -----------------------
