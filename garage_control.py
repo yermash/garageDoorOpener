@@ -5,8 +5,10 @@ import time
 import datetime
 import hashlib
 import os
-
+from dotenv import load_dotenv
 from flask import Flask, request, redirect, url_for, session
+
+load_dotenv()
 
 # -----------------------
 # Flask app configuration
@@ -28,6 +30,7 @@ GPIO.setup(RELAY_PIN, GPIO.OUT, initial=GPIO.HIGH)
 # Configuration
 # -----------------------
 STORED_HASH = os.environ.get("GARAGE_STORED_HASH")
+
 # -----------------------
 # Helper function
 # -----------------------
