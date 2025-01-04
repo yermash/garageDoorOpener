@@ -1,0 +1,7 @@
+version: "2"
+authtoken: a long string of digits and characters (replace this with your authtoken)
+tunnels:
+    web:
+        proto: http
+        addr: 6969
+        domain: logically-vast-crappie.ngrok-free.app
