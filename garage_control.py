@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import time
 import datetime
 import hashlib
+import os
 
 from flask import Flask, request, redirect, url_for, session
 
